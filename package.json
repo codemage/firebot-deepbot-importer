@@ -1,8 +1,8 @@
 {
-  "name": "firebot-custom-script-starter",
-  "scriptOutputName": "starterScript",
-  "version": "1.0.0",
-  "description": "A starter Firebot custom script",
+  "name": "firebot-deepbot-importer",
+  "scriptOutputName": "importDeepbotCSV",
+  "version": "0.0.1",
+  "description": "Imports exported CSV data from DeepBot",
   "main": "",
   "scripts": {
     "build": "webpack",
@@ -10,7 +10,7 @@
     "copy": "node ./scripts/copy-build.js",
     "test": "jest"
   },
-  "author": "ebiggz",
+  "author": "waltermundt",
   "license": "GNU3",
   "devDependencies": {
     "@crowbartools/firebot-custom-scripts-types": "^5.63.0",
@@ -26,5 +26,8 @@
   "volta": {
     "node": "20.14.0",
     "npm": "10.8.1"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.6"
   }
 }
