@@ -1,8 +1,12 @@
-# Starter Firebot Custom Script in Typescript
+# Deepbot CSV Importer -- Custom Script for FireBot Twitch bot
+
+This imports DeepBot CSV viewer data into [FireBot](https://firebot.app).
+
+Currently it only works if you first use the xlsx import built into FireBot to
+create all the users first; this will then correct their currency and last seen dates.
 
 ### Setup
-1. Create a new repo based off this template (Click "Use this Template" above) or simply fork it
-2. `npm install`
+1. Check out this repository and run `npm install`
 
 ### Building
 Dev:
@@ -12,7 +16,3 @@ Dev:
 Release:
 1. `npm run build`
 - Copy .js from `/dist`
-
-### Note
-- Keep the script definition object (that contains the `run`, `getScriptManifest`, and `getDefaultParameters` funcs) in the `main.ts` file as it's important those function names don't get minimized.
-- Edit the `"scriptOutputName"` property in `package.json` to change the filename of the outputted script.

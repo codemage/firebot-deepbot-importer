@@ -113,7 +113,7 @@ const script: Firebot.CustomScript<Params> = {
           lastSeen: row.last_seen.valueOf(),
           // @ts-expect-error these should be timestamps and not Date objects
           joinDate: row.join_date.valueOf(),
-          minutesInChannel: row.watch_time * 60,
+          minutesInChannel: row.watch_time,
           chatMessages: 0,
           disableAutoStatAccrual: false,
           disableActiveUserList: false,
@@ -128,7 +128,7 @@ const script: Firebot.CustomScript<Params> = {
         firebotUser.lastSeen = Math.max(row.last_seen.valueOf(), firebotUser.lastSeen);
         // @ts-expect-error these should be timestamps and not Date objects
         firebotUser.joinDate = Math.min(row.join_date.valueOf(), firebotUser.joinDate);
-        firebotUser.minutesInChannel = row.watch_time * 60;
+        firebotUser.minutesInChannel = row.watch_time;
         firebotUser.currency = {[currency.id]: row.points};
       }
       let ok = await userDb.updateUser(firebotUser);
