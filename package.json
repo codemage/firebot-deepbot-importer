@@ -1,7 +1,7 @@
 {
   "name": "firebot-deepbot-importer",
   "scriptOutputName": "importDeepbotCSV",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Imports exported CSV data from DeepBot",
   "main": "",
   "scripts": {

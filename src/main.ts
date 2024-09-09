@@ -26,7 +26,7 @@ const script: Firebot.CustomScript<Params> = {
       name: "Deepbot CSV Importer",
       description: "Import a saved DeepBot user database",
       author: "Walter Mundt",
-      version: "0.0.1",
+      version: "0.0.2",
       firebotVersion: "5",
     };
   },
@@ -66,7 +66,6 @@ const script: Firebot.CustomScript<Params> = {
         return value;
       if (["points", "watch_time", "vip", "mod"].includes(context.column as string))
         return Number(value);
-      // TODO: how to handle dates?
       if (["join_date", "last_seen", "vip_expiry"].includes(context.column as string))
         return new Date(value);
       return value;
@@ -75,9 +74,9 @@ const script: Firebot.CustomScript<Params> = {
     const now = new Date();
     const days_since = function(d : Date) { return (now.valueOf() - d.valueOf())/1000/60/60/24; }
     let total_records = csv_data.length;
-    // csv_data = csv_data.filter(value => days_since(value.last_seen) < 30);
+    //csv_data = csv_data.filter(value => days_since(value.last_seen) < 30);
     logger.info("parsed", total_records, "CSV records, requesting", csv_data.length, " users' information from Twitch");
-    const twitchUserList = await twitchApi.users.getUsersByNames(csv_data.filter(value => value).map(value => value.user));
+    const twitchUserList = await twitchApi.users.getUsersByNames(csv_data.filter(value => value && value.user).map(value => value.user));
     const twitchUsers: Record<string, HelixUser> = {};
     for (const user of twitchUserList) { twitchUsers[user.name] = user; }
     /*let showUser = async (user: string) => {
@@ -94,48 +93,30 @@ const script: Firebot.CustomScript<Params> = {
         logger.info(row.user, "not found on Twitch any more, skipping");
         continue;
       }
-      let firebotUser = await userDb.getUserById(twitchUser.id);
       let action: String;
-      if (firebotUser === undefined || firebotUser === null) {
+      let firebotUser = await userDb.getUserById(twitchUser.id);
+      if (firebotUser == null) {
         action = "create";
-        firebotUser = {
-          // @ts-expect-error bad type in the TypeScript interface for this
-          _id: twitchUser.id,
-          username: row.user,
-          displayName: twitchUser.displayName,
-          profilePicUrl: twitchUser.profilePictureUrl,
-          twitch: true,
-          twitchRoles: [],
-          online: false,
-          // @ts-expect-error these should be timestmaps and not Date objects
-          onlineAt: row.last_seen.valueOf(),
-          // @ts-expect-error these should be timestamps and not Date objects
-          lastSeen: row.last_seen.valueOf(),
-          // @ts-expect-error these should be timestamps and not Date objects
-          joinDate: row.join_date.valueOf(),
-          minutesInChannel: row.watch_time,
-          chatMessages: 0,
-          disableAutoStatAccrual: false,
-          disableActiveUserList: false,
-          disableViewerList: false,
-          metadata: {},
-          currency: {[currency.id]: row.points},
-          ranks: {},
-        };
+        // @ts-expect-error createNewUser is not documented
+        firebotUser = await userDb.createNewUser(twitchUser.id, row.user, twitchUser.displayName, twitchUser.profilePictureUrl);
+        if (firebotUser == null) {
+          logger.error("failed to create FireBot user", row.user);
+          continue;
+        }
       } else {
         action = "update";
-        // @ts-expect-error these should be timestamps and not Date objects
-        firebotUser.lastSeen = Math.max(row.last_seen.valueOf(), firebotUser.lastSeen);
-        // @ts-expect-error these should be timestamps and not Date objects
-        firebotUser.joinDate = Math.min(row.join_date.valueOf(), firebotUser.joinDate);
-        firebotUser.minutesInChannel = row.watch_time;
-        firebotUser.currency = {[currency.id]: row.points};
       }
+      // @ts-expect-error these should be timestamps and not Date objects
+      firebotUser.lastSeen = Math.max(row.last_seen.valueOf(), firebotUser.lastSeen);
+      // @ts-expect-error these should be timestamps and not Date objects
+      firebotUser.joinDate = Math.min(row.join_date.valueOf(), firebotUser.joinDate);
+      firebotUser.minutesInChannel = row.watch_time;
+      firebotUser.currency = {[currency.id]: row.points};
       let ok = await userDb.updateUser(firebotUser);
       if (ok)
-        logger.info(ok + ";", action + "d", "user", row.user);
+        logger.info(action + "d", "user", row.user);
       else
-        logger.info(ok + ";", "failed to", action, "user", row.user);
+        logger.error("failed to", action, "user", row.user);
     }
 
     logger.info("DeepBot data import complete");
