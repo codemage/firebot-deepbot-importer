@@ -1,5 +1,4 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { FirebotUser } from "@crowbartools/firebot-custom-scripts-types/types/modules/user-db";
 import { HelixUser } from "@twurple/api";
 import { parse } from "csv-parse/sync";
 import * as util from "util";
@@ -85,7 +84,7 @@ const script: Firebot.CustomScript<Params> = {
         logger.info(user, "in firebot: ", firebotUser);
       }
     };
-    await showUser("leonfoucault");*/
+    await showUser("testuser");*/
     logger.info("received", twitchUserList.length, "user records from Twitch, commencing FireBot user database update");
     for (const row of csv_data) {
       let twitchUser = twitchUsers[row.user];
